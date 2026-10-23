@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Map of You</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        /* Reset and Base */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            color: #334155;
+        }
+
+        /* Typography Custom Classes */
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-lora { font-family: 'Lora', serif; }
+
+        /* Smooth Soft Pastel Sunset Gradient Background */
+        .fixed-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+            /* A seamless transition from day sky to sunset */
+            background: linear-gradient(180deg, 
+                #a1c4fd 0%, 
+                #c2e9fb 25%, 
+                #fbc2eb 50%, 
+                #ffecd2 75%, 
+                #fcb69f 100%);
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.07);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Container & Winding Line */
+        #story-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 15vh;
+            padding-bottom: 20vh;
+        }
+
+        #svg-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .scroll-path {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 4;
+            stroke-linecap: round;
+            /* Drop shadow for the SVG line to make it pop */
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));
+        }
+
+        /* Layout Elements */
+        .story-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 40vh;
+            margin-bottom: 20vh;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(50px);
+            width: 100%;
+            max-width: 650px;
+        }
+
+        /* Thought Bubble Positioning */
+        .thought-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: -5vh auto 20vh auto;
+            z-index: 15;
+            padding: 0 20px;
+            pointer-events: none;
+        }
+
+        .thought-text {
+            font-size: 2.25rem;
+            color: #475569;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            max-width: 350px;
+            line-height: 1.3;
+        }
+
+        @media (min-width: 768px) {
+            .thought-text { font-size: 3rem; }
+        }
+
+        .thought-left { margin-right: auto; transform: rotate(-3deg); }
+        .thought-right { margin-left: auto; text-align: right; transform: rotate(2deg); }
+        .thought-center { margin: 0 auto; text-align: center; }
+
+    </style>
+</head>
+<body class="antialiased selection:bg-rose-200 selection:text-rose-900">
+
+    <!-- Smooth Parallax Pastel Background -->
+    <div class="fixed-bg"></div>
+
+    <!-- Main Scroll Story Area -->
+    <div id="story-wrapper">
+        
+        <!-- Dynamic SVG Line Container -->
+        <svg id="svg-container" preserveAspectRatio="none">
+            <path id="winding-path" class="scroll-path"></path>
+        </svg>
+
+        <!-- Prologue -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center font-lora">
+                <p class="text-lg md:text-xl text-slate-800 leading-relaxed italic">
+                    Legend says that on certain quiet shores at sunset, the sea washes up rare, hidden artifacts...
+                </p>
+                <p class="text-lg md:text-xl text-slate-800 leading-relaxed italic mt-4">
+                    This evening, it brought two things:<br>
+                    a strange, smooth sphere...<br>
+                    and a message sealed inside a bottle.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 1 -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center">
+                <p class="font-lora text-lg text-slate-700 mb-6 italic">To whoever holds this artifact:</p>
+                <p class="font-lora text-lg text-slate-800 leading-relaxed mb-6">
+                    At first glance, it appears to be nothing more than a flawless piece of <span class="font-bold">White Quartz</span>.. smooth, unbreakable, and perfectly put together.
+                </p>
+                <p class="font-lora text-lg text-slate-800 italic font-medium">Inspect closely...</p>
+            </div>
+        </div>
+
+        <!-- Thought 1 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-left">
+                What the...
+            </div>
+        </div>
+
+        <!-- Card 2: White Quartz -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-slate-800 mb-6 uppercase">White Quartz</h2>
+                <ul class="font-lora space-y-3 text-xl text-slate-700">
+                    <li>&bull; Strong</li>
+                    <li>&bull; Beautiful</li>
+                    <li>&bull; Well put together</li>
+                    <li>&bull; Elegant & Classy</li>
+                    <li>&bull; Wanted & Desired</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 2 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-right">
+                ...and there's much more...<br>
+                Cut inside...<br>
+                The weird stone is... layered?
+            </div>
+        </div>
+
+        <!-- Card 3: The Layers -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center max-w-md">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-slate-800 mb-8 uppercase border-b border-slate-400/30 pb-4">The Layers</h2>
+                <ul class="font-playfair space-y-4 text-2xl font-semibold">
+                    <li class="text-purple-900/80">&bull; Amethyst</li>
+                    <li class="text-rose-900/80">&bull; Raw Crimson Ruby</li>
+                    <li class="text-amber-900/80">&bull; Tiger's eye</li>
+                    <li class="text-emerald-900/80">&bull; Emerald</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 3 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-left max-w-lg">
+                But why are there so many layers in this weird stone?<br>
+                And what do these layers even mean?<br>
+                The scroll reads...
+            </div>
+        </div>
+
+        <!-- Card 4: Amethyst -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center max-w-lg">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-purple-900/80 mb-6 uppercase">Amethyst</h2>
+                <ul class="font-lora space-y-3 text-xl text-slate-700">
+                    <li>&bull; Gentle glow</li>
+                    <li>&bull; Soothing</li>
+                    <li>&bull; Comforting</li>
+                    <li>&bull; Quietly magnetic</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 4 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-right">
+                It continues..
+            </div>
+        </div>
+
+        <!-- Card 5: Raw Crimson Ruby -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center max-w-lg">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-rose-900/80 mb-6 uppercase">Raw Crimson Ruby</h2>
+                <ul class="font-lora space-y-3 text-xl text-slate-700">
+                    <li>&bull; Sharp</li>
+                    <li>&bull; Fiery</li>
+                    <li>&bull; Raw</li>
+                    <li>&bull; Burning</li>
+                    <li>&bull; Intense</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 5 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-left">
+                Why are they like this?
+            </div>
+        </div>
+
+        <!-- Card 6: Tiger's Eye -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center max-w-lg">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-amber-900/80 mb-6 uppercase">Tiger's Eye</h2>
+                <ul class="font-lora space-y-3 text-xl text-slate-700">
+                    <li>&bull; Vigilant</li>
+                    <li>&bull; Fierce</li>
+                    <li>&bull; Protective</li>
+                    <li>&bull; Guarded</li>
+                    <li>&bull; Resilient</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 6 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-right">
+                Why write all this?<br>
+                What's the meaning?
+            </div>
+        </div>
+
+        <!-- Card 7: Emerald -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-12 text-center max-w-lg">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-emerald-900/80 mb-6 uppercase">Emerald</h2>
+                <ul class="font-lora space-y-3 text-xl text-slate-700">
+                    <li>&bull; Tender</li>
+                    <li>&bull; Pure</li>
+                    <li>&bull; Fragile</li>
+                    <li>&bull; Sweet</li>
+                    <li>&bull; Gentle</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Thought 7 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-left max-w-lg">
+                The scroll is almost at the end.<br>
+                The weird descriptions of the stones have stopped.<br>
+                There is written a small text at the end.<br>
+                It writes —
+            </div>
+        </div>
+
+        <!-- Card 8: The Message -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-3xl p-10 md:p-16 text-center max-w-3xl relative overflow-hidden shadow-2xl">
+                <p class="font-lora text-xl text-slate-800 leading-relaxed mb-6">
+                    Do stones... have feelings?<br>
+                    <span class="italic opacity-70 text-lg">No... stones do not. That would be awkward.</span>
+                </p>
+                <p class="font-lora text-lg text-slate-800 leading-loose mb-8">
+                    Stones do not carry the quiet weight of the world on their shoulders. They do not hide their softest moments behind hardened walls, nor do they burn with raw fire when hurt so deep.<br>
+                    Stones do not love with a tenderness that it needs to be protected.
+                </p>
+                <p class="font-lora text-2xl font-bold text-slate-800 mb-6">
+                    This isn't the story of a stone. It never was.
+                </p>
+                <p class="font-playfair text-4xl md:text-5xl font-bold text-rose-900/80 mb-6 italic">
+                    This is the map of you.
+                </p>
+                <p class="font-lora text-lg text-slate-700 italic">
+                    Every layer, every shield, and the rare, beautiful heart I am so lucky to know.
+                </p>
+            </div>
+        </div>
+
+        <!-- Thought 8 -->
+        <div class="thought-wrapper reveal-item">
+            <div class="font-caveat thought-text thought-right max-w-xl">
+                So... the white quartz was the weight.<br>
+                The red ruby is the fire. What?<br>
+                The tiger's eye was the shield.<br>
+                And the emerald being the tender heart I love so much?
+            </div>
+        </div>
+
+        <!-- Card 9: The True Map -->
+        <div class="story-node">
+            <div class="reveal-item glass-card rounded-2xl p-8 md:p-14 w-full max-w-3xl">
+                <h2 class="font-playfair text-3xl font-bold tracking-widest text-slate-800 mb-10 text-center uppercase border-b border-slate-400/30 pb-4">The True Map</h2>
+                
+                <div class="font-lora text-lg md:text-xl space-y-8">
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <span class="font-bold font-playfair text-2xl text-purple-900/80 md:w-5/12 md:text-right">Amethyst:</span>
+                        <span class="text-slate-700 md:w-7/12 leading-relaxed">Care & kindness</span>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <span class="font-bold font-playfair text-2xl text-rose-900/80 md:w-5/12 md:text-right">Raw Crimson Ruby:</span>
+                        <span class="text-slate-700 md:w-7/12 leading-relaxed">Bitterness, tough feelings, rage, resentment</span>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <span class="font-bold font-playfair text-2xl text-amber-900/80 md:w-5/12 md:text-right">Tiger's Eye:</span>
+                        <span class="text-slate-700 md:w-7/12 leading-relaxed">Harsh defender & keeper</span>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <span class="font-bold font-playfair text-2xl text-emerald-900/80 md:w-5/12 md:text-right">Emerald:</span>
+                        <span class="text-slate-700 md:w-7/12 leading-relaxed">The gentle flower inside (timid, sweet, loving, tender)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thought 9 (Footer) -->
+        <div class="thought-wrapper reveal-item mb-0 pb-10">
+            <div class="font-caveat thought-text thought-center">
+                Stupid scroll, really.<br>
+                <span class="block mt-4 text-3xl opacity-80">The stone's kinda cool though.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Function to dynamically generate the winding SVG line based on document height
+        function generateWindingPath() {
+            const wrapper = document.getElementById('story-wrapper');
+            const svg = document.getElementById('svg-container');
+            const path = document.getElementById('winding-path');
+            
+            // Get the total height needed for the line
+            const height = wrapper.offsetHeight;
+            svg.setAttribute('viewBox', `0 0 300 ${height}`);
+            
+            // Build a smooth bezier curve path that winds back and forth down the page
+            let d = "M 150 0 "; // Start at top center
+            let y = 0;
+            const segmentHeight = 400; // Frequency of the waves
+            const amplitude = 120; // Width of the waves
+
+            while(y < height + segmentHeight) {
+                // Bezier curve to wind left, then right
+                d += `C ${150 + amplitude} ${y + segmentHeight/2}, ${150 - amplitude} ${y + segmentHeight/2}, 150 ${y + segmentHeight} `;
+                y += segmentHeight;
+            }
+
+            path.setAttribute('d', d);
+
+            // Return path length for animation setup
+            return path.getTotalLength();
+        }
+
+        function initAnimations() {
+            // Setup the dynamic SVG Line
+            const pathLength = generateWindingPath();
+            const path = document.getElementById('winding-path');
+            
+            // Setup CSS for drawing animation
+            path.style.strokeDasharray = pathLength;
+            path.style.strokeDashoffset = pathLength;
+
+            // Animate the line drawing based on scroll
+            gsap.to(path, {
+                strokeDashoffset: 0,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#story-wrapper",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1 // smooth scrubbing
+                }
+            });
+
+            // Animate cards and thoughts fading and sliding up
+            const revealItems = gsap.utils.toArray('.reveal-item');
+            revealItems.forEach((item) => {
+                gsap.to(item, {
+                    y: 0,
+                    opacity: 1,
+                    duration: 1.5,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%", // Triggers when top of element hits 85% down viewport
+                        toggleActions: "play none none reverse" 
+                    }
+                });
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initAnimations);
+
+        // Debounced resize event to recalculate the line path if window changes
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // Kill old ScrollTriggers to prevent overlapping animations
+                ScrollTrigger.getAll().forEach(t => t.kill());
+                
+                // Reset opacities and positions for recalculation
+                gsap.set('.reveal-item', { clearProps: "all" });
+                
+                initAnimations();
+            }, 250);
+        });
+    </script>
+</body>
+</html>
